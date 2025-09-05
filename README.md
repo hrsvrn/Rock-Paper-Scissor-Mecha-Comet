@@ -7,9 +7,10 @@
 - Hand Detection
 - Game Logic
 - GUI with countdown
+- requirements.txt
+- test on comet
+- pause
 
 ### TO DO:
 
-- requirements.txt
-- test on comet
 - integration with bionic hand
