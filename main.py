@@ -2,6 +2,8 @@
 import pygame
 import cv2
 import time
+import signal
+import sys
 from game.hand_tracker import HandTracker
 from game.game_logic import RPSGame
 
@@ -21,6 +23,15 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Modular Rock Paper Scissors")
 font = pygame.font.Font(None, 74)
 small_font = pygame.font.Font(None, 48)
+
+# Global flag for graceful exit
+running = True
+
+def signal_handler(sig, frame):
+    """Handle Ctrl+C gracefully"""
+    global running
+    print("\nCtrl+C detected. Exiting gracefully...")
+    running = False
 
 def draw_ui(game, frame, game_state, countdown_number=None):
     """Handles all the drawing onto the Pygame screen."""
@@ -70,7 +81,12 @@ def draw_ui(game, frame, game_state, countdown_number=None):
     pygame.display.flip()
 
 def main():
-    cap = cv2.VideoCapture(0)
+    global running
+    
+    # Set up signal handler for Ctrl+C
+    signal.signal(signal.SIGINT, signal_handler)
+    
+    cap = cv2.VideoCapture(1)  # Use external webcam (/dev/video1)
     tracker = HandTracker()
     game = RPSGame()
 
@@ -90,7 +106,6 @@ def main():
     play_start_time = 0
     play_timeout_duration = 5.0  # 5 seconds timeout
 
-    running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
