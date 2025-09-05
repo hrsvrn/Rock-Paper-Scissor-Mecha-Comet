@@ -2,8 +2,8 @@
 import pygame
 import cv2
 import time
-from hand_tracker import HandTracker
-from game_logic import RPSGame
+from game.hand_tracker import HandTracker
+from game.game_logic import RPSGame
 
 # --- Constants and Initialization ---
 SCREEN_WIDTH = 1280
