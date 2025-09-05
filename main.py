@@ -6,8 +6,8 @@ from game.hand_tracker import HandTracker
 from game.game_logic import RPSGame
 
 # --- Constants and Initialization ---
-SCREEN_WIDTH = 1280
-SCREEN_HEIGHT = 920
+SCREEN_WIDTH = 480
+SCREEN_HEIGHT = 480
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
