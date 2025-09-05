@@ -1,4 +1,3 @@
-# main.py
 import pygame
 import cv2
 import time
@@ -12,9 +11,11 @@ SCREEN_WIDTH = 480
 SCREEN_HEIGHT = 480
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-GRAY = (200, 200, 200)
+LIGHT_GRAY = (211, 211, 211)
 GREEN = (0, 255, 0)
+LIGHT_GREEN = (144, 238, 144)
 RED = (255, 0, 0)
+LIGHT_RED = (255, 182, 193)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
@@ -45,44 +46,58 @@ def draw_ui(game, frame, game_state, countdown_number=None):
             text_rect = countdown_text.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/2))
             screen.blit(countdown_text, text_rect)
     else:
-        # Normal game screen
-        screen.fill(BLACK)
+        # Normal game screen - change background based on winner
+        if game.winner:
+            if "You" in game.winner:
+                screen.fill(LIGHT_GREEN)  # Green background for player win
+            elif "Computer" in game.winner:
+                screen.fill(LIGHT_RED)    # Light red background for computer win
+            else:
+                screen.fill(LIGHT_GRAY)   # Default for tie
+        else:
+            screen.fill(LIGHT_GRAY)       # Default background during play
         
-        # Convert and draw the OpenCV frame - fit properly in square window
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        # Resize to fit in the top portion of the window (maintain aspect ratio)
-        frame_height = 300  # Leave space for UI elements below
+        frame_height = 250  # Reduced to make room for scores at bottom
         frame_width = int(frame_height * 4/3)  # Maintain webcam aspect ratio
         frame_resized = cv2.resize(frame_rgb, (frame_width, frame_height))
         pygame_frame = pygame.surfarray.make_surface(frame_resized.swapaxes(0, 1))
-        # Center the frame horizontally
+        # Center the frame horizontally and position lower
         frame_x = (SCREEN_WIDTH - frame_width) // 2
-        screen.blit(pygame_frame, (frame_x, 20))
+        screen.blit(pygame_frame, (frame_x, 60))
 
-        # Draw scores at the top corners
-        player_score_text = small_font.render(f"Player: {game.player_score}", True, WHITE)
-        screen.blit(player_score_text, (10, 10))
-        comp_score_text = small_font.render(f"Computer: {game.computer_score}", True, WHITE)
+        # Draw scores at the bottom above "Show your hand" text
+        score_y = SCREEN_HEIGHT - 120
+        player_score_text = font.render(f"Player: {game.player_score}", True, WHITE)
+        comp_score_text = font.render(f"Computer: {game.computer_score}", True, WHITE)
+        
+        # Center both scores horizontally
+        player_score_rect = player_score_text.get_rect()
         comp_score_rect = comp_score_text.get_rect()
-        screen.blit(comp_score_text, (SCREEN_WIDTH - comp_score_rect.width - 10, 10))
+        
+        # Position scores side by side, centered
+        total_width = player_score_rect.width + comp_score_rect.width + 40  # 40px gap
+        start_x = (SCREEN_WIDTH - total_width) // 2
+        
+        screen.blit(player_score_text, (start_x, score_y))
+        screen.blit(comp_score_text, (start_x + player_score_rect.width + 40, score_y))
 
         if game.winner: # Result phase
+            # Move choice display to top of screen
             player_text = small_font.render(f"You: {game.player_choice}", True, BLUE)
-            screen.blit(player_text, (100, SCREEN_HEIGHT - 150))
+            screen.blit(player_text, (20, 10))
             comp_text = small_font.render(f"Comp: {game.computer_choice}", True, RED)
-            screen.blit(comp_text, (SCREEN_WIDTH - 300, SCREEN_HEIGHT - 150))
+            comp_text_rect = comp_text.get_rect()
+            screen.blit(comp_text, (SCREEN_WIDTH - comp_text_rect.width - 20, 10))
 
             winner_color = GREEN if "You" in game.winner else RED if "Computer" in game.winner else WHITE
             winner_text = font.render(game.winner, True, winner_color)
-            text_rect = winner_text.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT - 75))
+            text_rect = winner_text.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT - 50))
             screen.blit(winner_text, text_rect)
         else: # Play phase
-            prompt_text = font.render("Show your hand!", True, GRAY)
-            text_rect = prompt_text.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT - 75))
-            screen.blit(prompt_text, text_rect)
             if game.player_choice:
                 detected_text = small_font.render(f"Detected: {game.player_choice}", True, GREEN)
-                text_rect = detected_text.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT - 150))
+                text_rect = detected_text.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT - 50))
                 screen.blit(detected_text, text_rect)
 
     pygame.display.flip()

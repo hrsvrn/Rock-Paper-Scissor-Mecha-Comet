@@ -19,10 +19,10 @@ class RPSGame:
         elif (self.player_choice == "Rock" and self.computer_choice == "Scissors") or \
              (self.player_choice == "Scissors" and self.computer_choice == "Paper") or \
              (self.player_choice == "Paper" and self.computer_choice == "Rock"):
-            self.winner = "You Win! 🎉"
+            self.winner = "You Win!"
             self.player_score += 1
         else:
-            self.winner = "Computer Wins! 💻"
+            self.winner = "Computer Wins!"
             self.computer_score += 1
 
     def reset_round(self):
