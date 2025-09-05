@@ -28,6 +28,7 @@ large_font = pygame.font.Font(None, 120)
 
 # Global flag for graceful exit
 running = True
+paused = False
 
 def signal_handler(sig, frame):
     """Handle Ctrl+C gracefully"""
@@ -45,6 +46,15 @@ def draw_ui(game, frame, game_state, countdown_number=None):
             countdown_text = large_font.render(str(countdown_number), True, BLACK)
             text_rect = countdown_text.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/2))
             screen.blit(countdown_text, text_rect)
+        
+        # Draw pause button at very top during countdown too
+        pause_text = "PAUSED" if paused else "PAUSE"
+        pause_button_text = small_font.render(pause_text, True, BLACK)
+        pause_button_rect = pygame.Rect(SCREEN_WIDTH//2 - 35, 5, 70, 25)
+        pygame.draw.rect(screen, WHITE, pause_button_rect)
+        pygame.draw.rect(screen, BLACK, pause_button_rect, 2)
+        text_rect = pause_button_text.get_rect(center=pause_button_rect.center)
+        screen.blit(pause_button_text, text_rect)
     else:
         # Normal game screen - change background based on winner
         if game.winner:
@@ -65,6 +75,15 @@ def draw_ui(game, frame, game_state, countdown_number=None):
         # Center the frame horizontally and position lower
         frame_x = (SCREEN_WIDTH - frame_width) // 2
         screen.blit(pygame_frame, (frame_x, 60))
+
+        # Draw pause button at very top of screen
+        pause_text = "PAUSED" if paused else "PAUSE"
+        pause_button_text = small_font.render(pause_text, True, BLACK)
+        pause_button_rect = pygame.Rect(SCREEN_WIDTH//2 - 35, 5, 70, 25)
+        pygame.draw.rect(screen, WHITE, pause_button_rect)
+        pygame.draw.rect(screen, BLACK, pause_button_rect, 2)
+        text_rect = pause_button_text.get_rect(center=pause_button_rect.center)
+        screen.blit(pause_button_text, text_rect)
 
         # Draw scores at the bottom above "Show your hand" text
         score_y = SCREEN_HEIGHT - 120
@@ -103,7 +122,7 @@ def draw_ui(game, frame, game_state, countdown_number=None):
     pygame.display.flip()
 
 def main():
-    global running
+    global running, paused
     
     # Set up signal handler for Ctrl+C
     signal.signal(signal.SIGINT, signal_handler)
@@ -116,7 +135,7 @@ def main():
     game_state = "COUNTDOWN" # COUNTDOWN, PLAY, RESULT
     last_gesture_time = time.time()
     gesture_lock_delay = 1.0
-    result_display_time = 2.0
+    result_display_time = 10.0  # Increased to 10 seconds
     last_result_time = 0
     
     # Countdown variables
@@ -132,6 +151,21 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                # Check if pause button was clicked
+                mouse_x, mouse_y = event.pos
+                pause_button_rect = pygame.Rect(SCREEN_WIDTH//2 - 35, 5, 70, 25)
+                if pause_button_rect.collidepoint(mouse_x, mouse_y):
+                    paused = not paused
+
+        # Skip game logic if paused
+        if paused:
+            success, frame = cap.read()
+            if success:
+                frame = cv2.flip(frame, 1)
+                current_gesture, processed_frame = tracker.find_gesture(frame)
+                draw_ui(game, processed_frame, game_state, None)
+            continue
 
         success, frame = cap.read()
         if not success:

@@ -1,5 +1,7 @@
 # Rock Paper Scissors game for IndiaFOSS Demo
 
+``` To get working on comet, run pip install -r requirements.txt```
+
 ### Working:
 
 - Hand Detection
