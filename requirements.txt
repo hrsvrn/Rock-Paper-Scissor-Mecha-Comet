@@ -1,0 +1,19 @@
+# Rock Paper Scissors Game Requirements
+# Core dependencies for the game to run
+
+# Pygame for game window and graphics
+pygame>=2.5.0
+
+# OpenCV for camera capture and image processing
+opencv-python>=4.8.0
+
+# MediaPipe for hand tracking and gesture recognition
+mediapipe>=0.10.0
+
+# NumPy (required by OpenCV and MediaPipe)
+numpy>=1.24.0
+
+# Additional dependencies that may be required on some systems
+# Uncomment if you encounter import errors:
+# protobuf>=3.20.0              # Required by MediaPipe on some systems
+# attrs>=21.0.0                 # May be required by MediaPipe
