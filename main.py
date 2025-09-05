@@ -21,8 +21,9 @@ YELLOW = (255, 255, 0)
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Modular Rock Paper Scissors")
-font = pygame.font.Font(None, 74)
-small_font = pygame.font.Font(None, 48)
+font = pygame.font.Font(None, 36)
+small_font = pygame.font.Font(None, 24)
+large_font = pygame.font.Font(None, 120)
 
 # Global flag for graceful exit
 running = True
@@ -40,24 +41,30 @@ def draw_ui(game, frame, game_state, countdown_number=None):
         # Yellow countdown screen
         screen.fill(YELLOW)
         if countdown_number:
-            countdown_text = pygame.font.Font(None, 200).render(str(countdown_number), True, BLACK)
+            countdown_text = large_font.render(str(countdown_number), True, BLACK)
             text_rect = countdown_text.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/2))
             screen.blit(countdown_text, text_rect)
     else:
         # Normal game screen
         screen.fill(BLACK)
         
-        # Convert and draw the OpenCV frame
+        # Convert and draw the OpenCV frame - fit properly in square window
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        frame_resized = cv2.resize(frame_rgb, (640, 480))
+        # Resize to fit in the top portion of the window (maintain aspect ratio)
+        frame_height = 300  # Leave space for UI elements below
+        frame_width = int(frame_height * 4/3)  # Maintain webcam aspect ratio
+        frame_resized = cv2.resize(frame_rgb, (frame_width, frame_height))
         pygame_frame = pygame.surfarray.make_surface(frame_resized.swapaxes(0, 1))
-        screen.blit(pygame_frame, (SCREEN_WIDTH // 2 - 320, 50))
+        # Center the frame horizontally
+        frame_x = (SCREEN_WIDTH - frame_width) // 2
+        screen.blit(pygame_frame, (frame_x, 20))
 
-        # Draw scores
+        # Draw scores at the top corners
         player_score_text = small_font.render(f"Player: {game.player_score}", True, WHITE)
-        screen.blit(player_score_text, (50, 50))
+        screen.blit(player_score_text, (10, 10))
         comp_score_text = small_font.render(f"Computer: {game.computer_score}", True, WHITE)
-        screen.blit(comp_score_text, (SCREEN_WIDTH - 250, 50))
+        comp_score_rect = comp_score_text.get_rect()
+        screen.blit(comp_score_text, (SCREEN_WIDTH - comp_score_rect.width - 10, 10))
 
         if game.winner: # Result phase
             player_text = small_font.render(f"You: {game.player_choice}", True, BLUE)
