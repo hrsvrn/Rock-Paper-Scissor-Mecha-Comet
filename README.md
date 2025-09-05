@@ -1,6 +1,10 @@
 # Rock Paper Scissors game for IndiaFOSS Demo
 
-``` To get working on comet, run pip install -r requirements.txt```
+### To get working on comet
+- On comet: 
+```python3 -m venv ./.venv```
+```source ./.venv/bin/activate```
+```pip3 install -r requirements.txt```
 
 ### Working:
 
